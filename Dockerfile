@@ -1,21 +1,17 @@
-FROM fedora:31
-RUN dnf -y update
-RUN dnf -y install libgpiod-utils i2c-tools libi2c-devel gcc python3-devel
-python3-pip
-RUN pip3 install enviroplus
-RUN pip3 install flask
-RUN pip3 install flask_restful
-RUN dnf -y install python3-numpy python3-i2c-tools python3-pillow
-python3-setuptools python3-libgpiod python3-libgpiod python3-RPi.GPIO
-RUN dnf -y install python3-cffi
-RUN python3 -m pip install sounddevice
-RUN dnf -y install portaudio
+# set base image (host OS)
+FROM python:3.7
 
-# imposta working directory
+# set the working directory in the container
 WORKDIR /code
-# copia codice sorgente
-COPY src/ .
-# avvia il server
-RUN python3 main.py
 
-RUN dnf clean all
+# copy the dependencies file to the working directory
+COPY requirements.txt .
+
+# install dependencies
+RUN pip install -r requirements.txt
+
+# copy the content of the local src directory to the working directory
+COPY src/ .
+
+# command to run on container start
+CMD [ "python", "./main.py" ]
