@@ -10,4 +10,12 @@ python3-setuptools python3-libgpiod python3-libgpiod python3-RPi.GPIO
 RUN dnf -y install python3-cffi
 RUN python3 -m pip install sounddevice
 RUN dnf -y install portaudio
+
+# imposta working directory
+WORKDIR /code
+# copia codice sorgente
+COPY src/ .
+# avvia il server
+RUN python3 main.py
+
 RUN dnf clean all
