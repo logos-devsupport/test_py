@@ -1,4 +1,6 @@
-FROM quay.io/silvandrici/qiot-sensor-service-base:1.0.1
+
+FROM python:3.7
+#FROM quay.io/silvandrici/qiot-sensor-service-base:1.0.1
 
 # imposta working directory
 WORKDIR /code
