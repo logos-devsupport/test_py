@@ -1,7 +1,6 @@
-# set base image (host OS)
-FROM python:3.7
+FROM quay.io/silvandrici/qiot-sensor-service-base:1.0.1
 
-# set the working directory in the container
+# imposta working directory
 WORKDIR /code
 
 # copy the dependencies file to the working directory
@@ -10,10 +9,10 @@ COPY requirements.txt .
 # install dependencies
 RUN pip install -r requirements.txt
 
-# copy the content of the local src directory to the working directory
+# copia codice sorgente
 COPY src/ .
 
 EXPOSE 5000
-
 # command to run on container start
 CMD [ "python", "./main.py" ]
+
