@@ -4,11 +4,7 @@ Command example:
     python3 main.py
 """
 
-import datetime
-import time
 import os
-import sys
-import pprint as pp
 import logging
 
 #logging.basicConfig(level=logging.INFO, format='%(asctime)s  %(levelname)-10s  %(message)s', filename=os.path.dirname(os.path.abspath(__file__))+time.strftime("\logs\crea_mappa_%Y-%m-%d.log"))
@@ -29,4 +25,5 @@ api.add_resource(HelloWorld, '/hello')
 
 if __name__ == '__main__':
     print("Starting server...")
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
