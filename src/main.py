@@ -1,19 +1,16 @@
 """
-
-Command example:
+Command:
     python3 main.py
 """
 
-import os
-import enviroplus
+import os, sys, traceback
 import pprint
 import logging
-
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s  %(levelname)-10s  %(message)s', filename=os.path.dirname(os.path.abspath(__file__))+time.strftime("\logs\crea_mappa_%Y-%m-%d.log"))
 
 from flask import Flask
 from flask_restful import Resource, Api
 from pms5003 import PMS5003
+from enviroplus import gas
 
 
 def safe_cast(val, to_type, default=None):
@@ -26,6 +23,7 @@ def safe_cast(val, to_type, default=None):
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 api = Api(app)
+pms5003 = PMS5003()
 
 
 class HelloWorld(Resource):
@@ -35,70 +33,94 @@ class HelloWorld(Resource):
 
 class Serial(Resource):
     def get(self):
-        serial = '1234567890'
-        return {'serial_number': serial}
+        cpu_serial = "0000000000000000"
+        try:
+            f = open('/proc/device-tree/serial-number', 'r')
+            for line in f:
+                cpu_serial = line[0:16]
+            f.close()
+        except:
+            cpu_serial = "ERROR000000000"
+        return {'serial_number': cpu_serial}
 
 
 class Pollution(Resource):
     def get(self):
-        measure = """PM1.0 ug/m3 (ultrafine particles):    ,                         2.
-PM2.5 ug/m3 (combustion particles, organic compounds, metals): 3
-PM10 ug/m3  (dust, pollen, mould spores):                      4
-PM1.0 ug/m3 (atmos env):                                       2
-PM2.5 ug/m3 (atmos env):                                       3
-PM10 ug/m3 (atmos env):                                        4
->0.3um in 0.1L air:                                            663
->0.5um in 0.1L air:                                            168
->1.0um in 0.1L air:                                            24
->2.5um in 0.1L air:                                            2
->5.0um in 0.1L air:                                            0
->10um in 0.1L air:                                             0
-"""
         try:
-            pms5003 = PMS5003()
-            measure = pms5003.read()
+            #measure = """PM1.0 ug/m3 (ultrafine particles):                             2
+            #PM2.5 ug/m3 (combustion particles, organic compounds, metals): 3
+            #PM10 ug/m3  (dust, pollen, mould spores):                      4
+            #PM1.0 ug/m3 (atmos env):                                       2
+            #PM2.5 ug/m3 (atmos env):                                       3
+            #PM10 ug/m3 (atmos env):                                        4
+            #>0.3um in 0.1L air:                                            663
+            #>0.5um in 0.1L air:                                            168
+            #>1.0um in 0.1L air:                                            24
+            #>2.5um in 0.1L air:                                            2
+            #>5.0um in 0.1L air:                                            0
+            #>10um in 0.1L air:                                             0
+            #"""
+            measure = str(pms5003.read()).strip()
+            lines = measure.splitlines()
+            for l in lines:
+                print(f" {l} ---> {safe_cast(l.rpartition(':')[2], int)} ")
+            pm1_0 = safe_cast(lines[0].rpartition(':')[2], int)
+            pm2_5 = safe_cast(lines[1].rpartition(':')[2], int)
+            pm10 = safe_cast(lines[2].rpartition(':')[2], int)
+            pm1_0_atm = safe_cast(lines[3].rpartition(':')[2], int)
+            pm2_5_atm = safe_cast(lines[4].rpartition(':')[2], int)
+            pm10_atm = safe_cast(lines[5].rpartition(':')[2], int)
+            gt0_3um = safe_cast(lines[6].rpartition(':')[2], int)
+            gt0_5um = safe_cast(lines[7].rpartition(':')[2], int)
+            gt1_0um = safe_cast(lines[8].rpartition(':')[2], int)
+            gt2_5um = safe_cast(lines[9].rpartition(':')[2], int)
+            gt5_0um = safe_cast(lines[10].rpartition(':')[2], int)
+            gt10um = safe_cast(lines[11].rpartition(':')[2], int)
+
+            return {'pm1_0': pm1_0,
+                    'pm2_5': pm2_5,
+                    'pm10': pm10,
+                    'pm1_0_atm': pm1_0_atm,
+                    'pm2_5_atm': pm2_5_atm,
+                    'pm10_atm': pm10_atm,
+                    'gt0_3um': gt0_3um,
+                    'gt0_5um': gt0_5um,
+                    'gt1_0um': gt1_0um,
+                    'gt2_5um': gt2_5um,
+                    'gt5_0um': gt5_0um,
+                    'gt10um': gt10um
+                    }
         except Exception as ex:
             print(ex)
-        lines = measure.splitlines()
-        # pprint.pprint(lines)
-        for l in lines:
-            print(f" {l} ---> {safe_cast(l.rpartition(':')[2], int)} ")
-        pm1_0 = safe_cast(lines[0].rpartition(':')[2], int)
-        pm2_5 = int(lines[1].rpartition(':')[2])
-        pm10 = int(lines[2].rpartition(':')[2])
-        pm1_0_atm = int(lines[3].rpartition(':')[2])
-        pm2_5_atm = int(lines[4].rpartition(':')[2])
-        pm10_atm = int(lines[5].rpartition(':')[2])
-        gt0_3um = int(lines[6].rpartition(':')[2])
-        gt0_5um = int(lines[7].rpartition(':')[2])
-        gt1_0um = int(lines[8].rpartition(':')[2])
-        gt2_5um = int(lines[9].rpartition(':')[2])
-        gt5_0um = int(lines[10].rpartition(':')[2])
-        gt10um = int(lines[11].rpartition(':')[2])
-
-        return {'pm1_0': pm1_0,
-                'pm2_5': pm2_5,
-                'pm10': pm10,
-                'pm1_0_atm': pm1_0_atm,
-                'pm2_5_atm': pm2_5_atm,
-                'pm10_atm': pm10_atm,
-                'gt0_3um': gt0_3um,
-                'gt0_5um': gt0_5um,
-                'gt1_0um': gt1_0um,
-                'gt2_5um': gt2_5um,
-                'gt5_0um': gt5_0um,
-                'gt10um': gt10um
-                }
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            return {'exception_type': str(exc_type),
+                    'exception_value': str(exc_value),
+                    'exception_traceback': traceback.format_exc().splitlines()}
 
 
 class Gas(Resource):
     def get(self):
-        measurements = ""
-        # recupero valori misurati
-        return {'adc': 3.5,
-                'nh3': 3.5,
-                'oxidising': 3.5,
-                'reducing': 3.5}
+        try:
+            #measurements = "Oxidising: 4.76889 Ohms Reducing: 5.9589 Ohms NH3: 8.359 Ohms ADC: 8.36987 Volts"
+            measurements = str(gas.read_all())
+
+            data = measurements.split("Ohms")
+            oxidising = safe_cast(data[0].split(':')[1].strip(), float)
+            reducing = safe_cast(data[1].split(':')[1].strip(), float)
+            nh3 = safe_cast(data[2].split(':')[1].strip(), float)
+            adc = safe_cast(data[3].split(':')[1].split(' ')[0].strip(), float)
+
+            return {'adc': adc,
+                    'nh3': nh3,
+                    'oxidising': oxidising,
+                    'reducing': reducing
+                    }
+        except Exception as ex:
+            print(ex)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            return {'exception_type': str(exc_type),
+                    'exception_value': str(exc_value),
+                    'exception_traceback': traceback.format_exc().splitlines()}
 
 
 api.add_resource(HelloWorld, '/', '/hello')
@@ -106,8 +128,6 @@ api.add_resource(Serial, '/serial')
 api.add_resource(Pollution, '/pollution')
 api.add_resource(Gas, '/gas')
 
-
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
-
