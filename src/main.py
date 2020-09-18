@@ -24,6 +24,7 @@ app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 api = Api(app)
 pms5003 = PMS5003()
+gas.enable_adc()
 
 
 class HelloWorld(Resource):
