@@ -47,23 +47,11 @@ class Serial(Resource):
 class Pollution(Resource):
     def get(self):
         try:
-            #measure = """PM1.0 ug/m3 (ultrafine particles):                             2
-            #PM2.5 ug/m3 (combustion particles, organic compounds, metals): 3
-            #PM10 ug/m3  (dust, pollen, mould spores):                      4
-            #PM1.0 ug/m3 (atmos env):                                       2
-            #PM2.5 ug/m3 (atmos env):                                       3
-            #PM10 ug/m3 (atmos env):                                        4
-            #>0.3um in 0.1L air:                                            663
-            #>0.5um in 0.1L air:                                            168
-            #>1.0um in 0.1L air:                                            24
-            #>2.5um in 0.1L air:                                            2
-            #>5.0um in 0.1L air:                                            0
-            #>10um in 0.1L air:                                             0
-            #"""
             measure = str(pms5003.read()).strip()
             lines = measure.splitlines()
-            for l in lines:
-                print(f" {l} ---> {safe_cast(l.rpartition(':')[2], int)} ")
+            #for l in lines:
+            #    print(f" {l} ---> {safe_cast(l.rpartition(':')[2], int)} ")
+
             pm1_0 = safe_cast(lines[0].rpartition(':')[2], int)
             pm2_5 = safe_cast(lines[1].rpartition(':')[2], int)
             pm10 = safe_cast(lines[2].rpartition(':')[2], int)
@@ -101,14 +89,14 @@ class Pollution(Resource):
 class Gas(Resource):
     def get(self):
         try:
-            #measurements = "Oxidising: 4.76889 Ohms Reducing: 5.9589 Ohms NH3: 8.359 Ohms ADC: 8.36987 Volts"
             measurements = str(gas.read_all())
+            #print(measurements)
 
             data = measurements.split("Ohms")
             oxidising = safe_cast(data[0].split(':')[1].strip(), float)
             reducing = safe_cast(data[1].split(':')[1].strip(), float)
             nh3 = safe_cast(data[2].split(':')[1].strip(), float)
-            adc = safe_cast(data[3].split(':')[1].split(' ')[0].strip(), float)
+            adc = safe_cast(data[3].split()[1], float)
 
             return {'adc': adc,
                     'nh3': nh3,
