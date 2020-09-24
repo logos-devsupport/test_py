@@ -90,14 +90,13 @@ class Pollution(Resource):
 class Gas(Resource):
     def get(self):
         try:
-            measurements = str(gas.read_all())
+            measurements = gas.read_all()
             #print(measurements)
 
-            data = measurements.split("Ohms")
-            oxidising = safe_cast(data[0].split(':')[1].strip(), float)
-            reducing = safe_cast(data[1].split(':')[1].strip(), float)
-            nh3 = safe_cast(data[2].split(':')[1].strip(), float)
-            adc = safe_cast(data[3].split()[1], float)
+            oxidising = safe_cast(measurements.oxidising, float)
+            reducing = safe_cast(measurements.reducing, float)
+            nh3 = safe_cast(measurements.nh3, float)
+            adc = safe_cast(measurements.adc, float)
 
             return {'adc': adc,
                     'nh3': nh3,
