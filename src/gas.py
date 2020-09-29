@@ -4,6 +4,8 @@ import time
 import random
 from queue import Queue
 from flask_restful import Resource
+from enviroplus import gas
+gas.enable_adc()
 
 
 class GasMeasure:

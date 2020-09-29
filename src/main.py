@@ -5,29 +5,15 @@ Command:
 
 import os, sys, traceback
 import pprint
-import logging
 
 from flask import Flask
 from flask_restful import Resource, Api
-import importlib
-#importlib.import_module(gas)
 from gas import GasThread, GasResource
 from pollution import PollutionThread, PollutionResource
-
-# from pms5003 import PMS5003
-# from enviroplus import gas
-
-
-
-
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 api = Api(app)
-
-
-# pms5003 = PMS5003()
-# gas.enable_adc()
 
 
 class HelloWorld(Resource):
@@ -54,7 +40,7 @@ api.add_resource(PollutionResource, '/pollution')
 api.add_resource(GasResource, '/gas')
 
 if __name__ == '__main__':
-    print("Starting main...")
+    print("Starting threads...")
     gas_thread = GasThread()
     pollution_thread = PollutionThread()
     gas_thread.start()

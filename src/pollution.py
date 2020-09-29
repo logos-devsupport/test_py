@@ -5,6 +5,8 @@ import random
 from queue import Queue
 from flask_restful import Resource
 from util import safe_cast
+from pms5003 import PMS5003
+pms5003 = PMS5003()
 
 
 class PollutionMeasure:
@@ -33,24 +35,8 @@ class PollutionQueue:
         print("read_pollution() started!")
         try:
             while True:
-                # measure = str(pms5003.read()).strip()
-                measure = """PM1.0 ug/m3 (ultrafine particles):                             2
-                            #PM2.5 ug/m3 (combustion particles, organic compounds, metals): 3
-                            #PM10 ug/m3  (dust, pollen, mould spores):                      4
-                            #PM1.0 ug/m3 (atmos env):                                       2
-                            #PM2.5 ug/m3 (atmos env):                                       3
-                            #PM10 ug/m3 (atmos env):                                        4
-                            #>0.3um in 0.1L air:                                            663
-                            #>0.5um in 0.1L air:                                            168
-                            #>1.0um in 0.1L air:                                            24
-                            #>2.5um in 0.1L air:                                            2
-                            #>5.0um in 0.1L air:                                            0
-                            #>10um in 0.1L air:                                             0
-                            #"""
+                measure = str(pms5003.read()).strip()
                 lines = measure.splitlines()
-                # for l in lines:
-                #    print(f" {l} ---> {safe_cast(l.rpartition(':')[2], int)} ")
-
                 measurements = PollutionMeasure(
                     safe_cast(lines[0].rpartition(':')[2], int),
                     safe_cast(lines[1].rpartition(':')[2], int),
@@ -65,26 +51,11 @@ class PollutionQueue:
                     safe_cast(lines[10].rpartition(':')[2], int),
                     safe_cast(lines[11].rpartition(':')[2], int))
 
-                measurements = PollutionMeasure(
-                    safe_cast(lines[0].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[1].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[2].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[3].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[4].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[5].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[6].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[7].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[8].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[9].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[10].rpartition(':')[2], int) * random.randint(1, 10),
-                    safe_cast(lines[11].rpartition(':')[2], int) * random.randint(1, 10))
-
                 if self.values.full():
                     self.values.get()
                 self.values.put(measurements)
 
                 # pprint.pprint(f"Elementi in coda: {self.values.qsize()}")
-                # pprint.pprint(self.values.queue)
                 time.sleep(self.seconds_interval)
         except:
             print("Exception in read_pollution()!")
