@@ -6,7 +6,6 @@ from queue import Queue
 from flask_restful import Resource
 from util import safe_cast
 from pms5003 import PMS5003
-pms5003 = PMS5003()
 
 
 class PollutionMeasure:
@@ -33,8 +32,9 @@ class PollutionQueue:
 
     def read_pollution(self):
         print("read_pollution() started!")
-        try:
-            while True:
+        pms5003 = PMS5003()
+        while True:
+            try:
                 measure = str(pms5003.read()).strip()
                 lines = measure.splitlines()
                 measurements = PollutionMeasure(
@@ -55,14 +55,21 @@ class PollutionQueue:
                     self.values.get()
                 self.values.put(measurements)
 
-                # pprint.pprint(f"Elementi in coda: {self.values.qsize()}")
+                print(f"Elementi in coda Pollution: {self.values.qsize()}")
                 time.sleep(self.seconds_interval)
-        except:
-            print("Exception in read_pollution()!")
-            raise
+            except Exception as ex:
+                print(ex)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print(f"exception_type: {exc_type}")
+                print(f"exception_value: {exc_value}")
+                print(f"exception_traceback: {traceback.format_exc().splitlines()}")
+                time.sleep(5)
+                pms5003 = PMS5003()
+
 
     def get_mean(self):
         if self.values.empty():
+            print("No elements in pollution queue")
             return None
         pm1_0_array = []
         pm2_5_array = []

@@ -26,16 +26,14 @@ class GasQueue:
         print("read_gas() started")
         try:
             while True:
-                # measurements = gas.read_all()
-                measurements = GasMeasure(1.5 * random.uniform(1, 10), 4 * random.uniform(1, 10),
-                                          12.3 * random.uniform(1, 10), 3.8 * random.uniform(1, 10))
+                measurements = gas.read_all()
                 if self.values.full():
                     self.values.get()
                 self.values.put(
                     GasMeasure(measurements.oxidising, measurements.reducing, measurements.nh3, measurements.adc))
 
-                #pprint.pprint(f"Elementi in coda: {self.values.qsize()}")
-                #pprint.pprint(self.values.queue)
+                #print(f"Elementi in coda: {self.values.qsize()}")
+                #print(self.values.queue)
                 time.sleep(self.seconds_interval)
         except:
             print("Exception in read_gas()!")
