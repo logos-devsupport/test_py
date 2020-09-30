@@ -113,7 +113,7 @@ class PollutionQueue:
             safe_cast(sum(gt10um_array) / len(gt10um_array), int))
 
 
-pollution_queue = PollutionQueue(max_queue_size=5, seconds_interval=1)
+pollution_queue = PollutionQueue(max_queue_size=5, seconds_interval=3)
 
 
 class PollutionResource(Resource):
